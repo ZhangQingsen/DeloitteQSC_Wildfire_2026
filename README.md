@@ -1,83 +1,118 @@
-# Deloitte QSC 2026 — Wildfire Risk Modeling (Classical + Deep Learning + Quantum)
+# Hybrid Quantum–Classical Representation Learning for High‑Precision Wildfire Risk Modeling
 
-This repository contains my submission for **Deloitte QSC 2026**, focusing on **wildfire risk modeling** using a hybrid stack of:
-
-- **Classical machine learning**
-- **Deep neural networks**
-- **Quantum machine learning (QML)** via PennyLane
-
-The goal is to build a robust, interpretable, and forward‑looking pipeline for estimating wildfire risk across U.S. ZIP codes and months, using historical weather and spatial features.
+This repository contains the full implementation of **Hybrid Quantum–Classical Representation Learning for High‑Precision Spatio‑temporal Wildfire Risk Intensity**, submitted to the **2026 Deloitte Quantum Sustainability Challenge**.  
+The project develops a compact, quantum‑enhanced regression framework capable of modeling **continuous wildfire risk intensity** under extreme class imbalance and non‑linear environmental interactions.
 
 ---
 
-## Project Overview
+## 🔥 Project Overview
 
-Wildfire risk is a complex function of **space**, **seasonality**, and **weather dynamics**.  
-The dataset exhibits:
+Wildfire risk modeling suffers from three structural challenges:
 
-- Strong nonlinear interactions  
-- Heavy‑tailed risk distribution  
-- Sparse high‑risk regions  
-- Panel structure (ZIP × month × year)
+- **Extreme sparsity** (fire events < 1%)  
+- **Non‑linear climatic interactions**  
+- **Spatio‑temporal non‑stationarity**
 
-To address these challenges, the project is structured into three modeling layers:
+This project introduces a **hybrid quantum–classical architecture** that embeds classical features into a **4‑qubit PQC bottleneck**, leveraging Hilbert‑space expressivity to achieve **high‑density latent representations** with a physical footprint under **17 KB**.
 
----
-
-## 1. Classical ML Baselines
-
-Implemented models include:
-
-- Linear Regression / Ridge / Lasso  
-- Random Forest / Extra Trees  
-- XGBoost  
-- Classical MLPRegressor  
-
-These baselines provide interpretability and fast iteration, and serve as a reference point for deeper models.
+The full technical report is included in the repository (`/report/`) and submitted as part of Phase 1.
 
 ---
 
-## 2. Deep Learning Models
-
-Eight neural architectures were implemented from scratch in PyTorch:
-
-- **MLPPlain / MLPResNet**  
-- **MLPAttentionPlain / MLPAttentionRes**  
-- **CNN1DPlain / CNN1DResNet**  
-- **NAF1DPlain / NAF1DRes**
-
-These models are trained on **2018–2020** data with an internal train/validation split, and evaluated on **2021** as the held‑out test year.
-
-Deep learning models consistently outperform classical ML on MSE and tail‑risk metrics, indicating strong ability to capture smooth nonlinear structure in the KDE‑based risk target.
 
 ---
 
-## 3. Quantum Machine Learning (QML)
+## 🧠 Methodology Summary
 
-Quantum models are explored to address two structural challenges in the data:
+### **1. Data & Target Construction**
+- Integrated **125k+** California wildfire panel records (2018–2023)  
+- Spatial centroids via **pgeocode**  
+- Cyclic month embeddings (sin/cos)  
+- Continuous risk target via **Spatio‑temporal Kernel Intensity (STKI)**  
+- All features standardized (Z‑score)
 
-- **Heavy‑tailed risk distribution**  
-- **Sparse high‑risk regions**
+### **2. Classical Encoder (MLP‑Attention‑Residual)**
+- Feature‑wise attention gate (SE‑style)  
+- Residual blocks to prevent information dilution  
+- Achieves **MSE ≈ 2.26 × 10⁻⁶**
 
-These are scenarios where **kernel‑based methods** and **non‑classical feature embeddings** may offer complementary benefits.
+### **3. Quantum Bottleneck (4‑Qubit PQC)**
+- Ry/Rz data embedding  
+- CNOT entanglement layers  
+- Acts as a **high‑density latent compressor**  
+- Physical footprint: **< 17 KB**
 
-Planned QML components include:
-
-### (a) Quantum Kernel Regression (QKR)
-Using PennyLane’s quantum kernels to build a high‑expressivity similarity measure for ZIP×month×weather features.
-
-### (b) Quantum Feature Maps + Classical DNN
-A hybrid model where a shallow quantum circuit produces nonlinear quantum features that augment the deep neural network backbone.
-
-### (c) Variational Quantum Regressor (VQR) *(optional)*
-A fully quantum baseline for comparison under NISQ constraints.
-
-The QML goal is **not** to outperform deep learning globally, but to explore whether quantum feature spaces provide advantages in **tail behavior**, **sparse regions**, or **expressivity**.
+### **4. Evaluation**
+- Train/val/test strictly from **2018–2021**  
+- **2022–2023** held out for zero‑shot forecasting  
+- Metrics: R², MSE, prevalence‑matched classification, **risk@k%** tail‑recall
 
 ---
 
-## Contact
+## 📊 Key Results
 
-Prepared for **Deloitte QSC 2026**  
-Author: *Qingsen*  
-Email: *zqs@binghamton.edu*
+| Model | R² | MSE (×10⁻⁶) | risk@1% | Notes |
+|------|----|--------------|---------|-------|
+| Linear Regression | 0.6935 | 14928 | 0.0171 | Baseline |
+| XGBoost | 0.9890 | 535.1 | 0.0102 | Strong ML benchmark |
+| **MLP‑Att‑Res** | **0.9999** | **2.26** | **0.0096** | Best classical |
+| **QNN‑Bottleneck** | 0.9985 | 71.4 | 0.0096 | 10× smaller footprint |
+
+### **2023 Zero‑Shot Forecasting**
+Using only spatial topology + cyclic month + historical climate averages, the model reconstructs a **smooth, geographically coherent risk surface**, demonstrating strong internalization of California’s risk geometry.
+
+---
+
+## 🚀 Quick Start (Evaluator‑Friendly)
+
+This repository is **not intended as a runnable package**.  
+However, evaluators can navigate the implementation as follows:
+
+- **STKI target construction:** `src/stki/`  
+- **Classical encoder:** `src/classical_models/att_res_mlp.py`  
+- **Quantum bottleneck:** `src/quantum_models/qnn_bottleneck.py`  
+- **Training pipeline:** `src/train.py`  
+- **Ablation experiments:** `notebooks/`
+
+All hyperparameters and architectural choices match those described in the submitted PDF.
+
+---
+
+## 🧭 Vision: Native Quantum Information Dynamics
+
+Beyond modular PQC substitution, the project outlines a future direction where wildfire risk is modeled as **quantum state evolution**, enabling:
+
+- Interference‑based amplification of **rare tail events**  
+- Unitary dynamics for **stochastic hazard propagation**  
+- Compact modeling of **multi‑modal risk distributions**
+
+This direction is detailed in Section 5 of the report.
+
+---
+
+## 📚 References
+
+Key references include:
+
+- Diggle (2013) — Spatio‑temporal point processes  
+- Ho et al. (2020) — DDPM time embeddings  
+- Ronneberger et al. (2015) — U‑Net  
+- Attention Residuals (2026)  
+- U.S. Census TIGER/Line ZCTA shapefiles (2023)
+
+Full citations are available in the PDF.
+
+---
+
+## 📩 Contact
+
+**Author:** Qingsen Zhang  
+**Affiliation:** Binghamton University  
+**Email:** qzhang11@binghamton.edu  
+**Team:** DeloitteQSC_Wildfire_QSen
+
+---
+
+If you use or reference this work, please cite the accompanying report.
+
+
